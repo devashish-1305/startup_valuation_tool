@@ -3,9 +3,9 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from apis.fmp_api import fetch_fmp_data
-from apis.yfinance_api import fetch_yfinance_data
-from apis.sec_edgar_api import fetch_sec_edgar_data  
+from .sec_edgar_api   import fetch_sec_edgar_data
+from .fmp_api         import fetch_fmp_data
+from .yfinance_api    import fetch_yfinance_data 
 
 symbols = ["META", "AMZN", "TSLA", "MSFT", "AAPL", "NVDA", "GOOGL", "NFLX"]
 

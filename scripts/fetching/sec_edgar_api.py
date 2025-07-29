@@ -128,7 +128,6 @@ def fetch_sec_edgar_data(symbol):
         
         print(f"   SEC EDGAR data saved to {filename}")
         
-        # Save metadata
         metadata = {
             'symbol': symbol,
             'cik': cik,

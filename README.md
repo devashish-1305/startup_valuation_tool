@@ -6,9 +6,8 @@ This project is an end-to-end data science application designed to demystify com
 ## Live Demo
 Check out the live, interactive demo hosted on Streamlit Community Cloud: 
 
-**[Your Live App URL Will Go Here After You Deploy]**
+**[https://startupvaluationtool-cktwmge45hsw6oikct6wzf.streamlit.app/]**
 
----
 ## Key Features
 * **Dual Valuation Capability:** Analyze public companies with quantitative models (DCF, ML Regression) or evaluate early-stage startups with five different qualitative models (Berkus, Scorecard, etc.).
 * **Interactive Dashboard:** A user-friendly and intuitive interface built with Streamlit for dynamic analysis and scenario modeling.

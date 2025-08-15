@@ -1,0 +1,9 @@
+@echo off
+echo  Starting Startup Valuation Tool...
+call conda activate valuation_env
+set AIRFLOW_HOME=%cd%\airflow
+echo Starting Airflow server...
+start /B airflow standalone > nul 2>&1
+timeout /t 15
+echo  Starting Streamlit dashboard...
+streamlit run app.py

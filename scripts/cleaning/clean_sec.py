@@ -17,7 +17,7 @@ def clean_metadata(sym: str):
     src = os.path.join(RAW_DIR, sym, f"{sym}_metadata.csv")
     dst = os.path.join(CLEANED_DIR,  f"{sym}_metadata_cleaned.csv")
     if not os.path.isfile(src):
-        print(f"⚠️  metadata missing for {sym}")
+        print(f" metadata missing for {sym}")
         return
 
     df = pd.read_csv(src)
@@ -33,7 +33,7 @@ def clean_metadata(sym: str):
 
     df = df[[c for c in meta_keep if c in df.columns]]
     df.to_csv(dst, index=False)
-    print(f"✅ metadata cleaned for {sym}")
+    print(f" metadata cleaned for {sym}")
 
 
 def clean_10k(sym: str):
@@ -44,7 +44,7 @@ def clean_10k(sym: str):
         return
 
     shutil.copyfile(src, dst)
-    print(f"✅ 10-K copied → {dst}")
+    print(f"10-K copied → {dst}")
 
 
 if __name__ == "__main__":

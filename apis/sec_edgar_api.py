@@ -7,23 +7,19 @@ from datetime import datetime
 from dotenv import load_dotenv
 import re
 
-# Load environment variables
 load_dotenv()
 USER_EMAIL = os.getenv("USER_EMAIL", "your-email@example.com")
 
-# SEC EDGAR base URL
 SEC_BASE_URL = "https://www.sec.gov"
 EDGAR_SEARCH_URL = "https://www.sec.gov/cgi-bin/browse-edgar"
 SAVE_DIR = "data_sources/raw/sec_edgar"
 
-# User agent required by SEC
 HEADERS = {
     'User-Agent': f'Academic Research {USER_EMAIL}',
     'Accept-Encoding': 'gzip, deflate',
     'Host': 'www.sec.gov'
 }
 
-# CIK mapping for our companies
 SYMBOL_TO_CIK = {
     "META": "0001326801",
     "AMZN": "0001018724", 
@@ -38,11 +34,9 @@ SYMBOL_TO_CIK = {
 def fetch_sec_edgar_data(symbol):
     """Fetch latest 10-K filing for a symbol"""
     
-    # Create directory
     symbol_dir = os.path.join(SAVE_DIR, symbol)
     os.makedirs(symbol_dir, exist_ok=True)
     
-    # Check if already exists
     filename = f"{symbol_dir}/{symbol}_10k_latest.txt"
     if os.path.exists(filename):
         print(f" Skipping SEC EDGAR: {filename} already exists")
@@ -50,14 +44,12 @@ def fetch_sec_edgar_data(symbol):
     
     print(f" Fetching SEC EDGAR data for {symbol}...")
     
-    # Get CIK
     cik = SYMBOL_TO_CIK.get(symbol)
     if not cik:
         print(f" No CIK found for {symbol}")
         return
     
     try:
-        # Step 1: Get list of 10-K filings
         cik_no_zeros = cik.lstrip('0')
         params = {
             'action': 'getcompany',
@@ -81,12 +73,10 @@ def fetch_sec_edgar_data(symbol):
         filing_url = filing_href.text
         print(f"   Found filing: {filing_url}")
         
-        # Step 2: Get the filing page
-        time.sleep(0.5)  # Be nice to SEC
+        time.sleep(0.5)  
         response = requests.get(filing_url, headers=HEADERS)
         response.raise_for_status()
         
-        # Find the main document link
         soup = BeautifulSoup(response.text, 'html.parser')
         doc_table = soup.find('table', class_='tableFile')
         
@@ -103,32 +93,25 @@ def fetch_sec_edgar_data(symbol):
             print(f" Could not find 10-K document")
             return
         
-        # Step 3: Get the actual 10-K content
         time.sleep(0.5)
         response = requests.get(doc_url, headers=HEADERS)
         response.raise_for_status()
         
-        # Extract text content
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # Remove scripts and styles
         for element in soup(['script', 'style']):
             element.decompose()
         
-        # Get text
         text_content = soup.get_text()
         
-        # Basic cleaning
         text_content = re.sub(r'\s+', ' ', text_content)
         text_content = text_content.strip()
         
-        # Save the full 10-K text
         with open(filename, 'w', encoding='utf-8') as f:
             f.write(text_content)
         
         print(f"   SEC EDGAR data saved to {filename}")
         
-        # Save metadata
         metadata = {
             'symbol': symbol,
             'cik': cik,

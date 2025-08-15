@@ -1,21 +1,13 @@
-# Byte-compiled / cache files
-__pycache__/
-*.py[cod]
-*.so
-
-# Virtual environment
-venv/
-
-# Environment variables
+# Environment & Secrets
 .env
+valuation_env/
 
-# Jupyter Notebook Checkpoints
-.ipynb_checkpoints/
+# Caches and Logs
+__pycache__/
+*.pyc
+*.log
+airflow/logs/
+airflow/webserver_config.py
 
-# VS Code settings
-.vscode/
-
-# OS files
+# macOS
 .DS_Store
-Thumbs.db
-

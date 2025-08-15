@@ -1,55 +1,64 @@
-import os
-from datetime import datetime
 import pandas as pd
+from pathlib import Path
 
-RAW_DIR = "data_sources/raw/fmp/"
-CLEANED_DIR = "data_sources/cleaned/fmp/"
-os.makedirs(CLEANED_DIR, exist_ok=True)
+RAW_DIR = Path("data_sources/raw/fmp")
+CLEANED_DIR = Path("data_sources/cleaned/fmp")
+SYMBOLS = ["META", "AMZN", "TSLA", "MSFT", "AAPL", "NVDA", "GOOGL", "NFLX"]
 
-symbols   = ["AAPL", "AMZN", "GOOGL", "META", "MSFT", "NFLX", "NVDA", "TSLA"]
-keep_cols = ["date", "revenue", "netIncome", "EBITDA",
-             "ROE", "P/B", "P/E"]        
-
-
-def _find(df, words):
-    for c in df.columns:
-        cl = c.lower()
-        if any(w in cl for w in words):
-            return c
-    return None
+COLUMN_MAP = {
+    'date': ['date'],
+    'symbol': ['symbol'],
+    'freeCashFlow': ['freeCashFlow'],
+    'totalDebt': ['totalDebt'],
+    'cashAndCashEquivalents': ['cashAndCashEquivalents'],
+    'sharesOutstanding': ['sharesOutstanding', 'weightedAverageShsOut', 'weightedAverageShsOutDil']
+}
 
 
-def clean_fmp_symbol(sym):
-    raw     = os.path.join(RAW_DIR,     f"{sym}_fmp_raw.csv")
-    cleaned = os.path.join(CLEANED_DIR, f"{sym}_fmp_cleaned.csv")
-    df = pd.read_csv(raw)
-    df.columns = [c.strip() for c in df.columns]
+def clean_file(raw_path: Path, cleaned_path: Path):
+    """
+    Reads a raw file, finds and standardizes columns based on COLUMN_MAP,
+    and saves a cleaned version containing only the desired columns.
+    """
+    if not raw_path.exists():
+        return
 
-    rev = _find(df, ["revenue"])                   
-    if rev:
-        if rev != "revenue":
-            df.rename(columns={rev: "revenue"}, inplace=True)
-    else:
-        df["revenue"] = pd.NA
+    df = pd.read_csv(raw_path)
+    df_cleaned = pd.DataFrame()
 
-    date_col = _find(df, ["date", "fiscal", "calendar", "period"])
-    if date_col:
-        df["date"] = pd.to_datetime(df[date_col], errors="coerce")
-    else:
-        df["date"] = pd.to_datetime(datetime.today().date())
+    # Find and copy each required column using its standard name
+    for standard_name, possible_names in COLUMN_MAP.items():
+        for raw_name in possible_names:
+            if raw_name in df.columns:
+                df_cleaned[standard_name] = df[raw_name]
+                break 
+    # Format date column if it was found
+    if 'date' in df_cleaned.columns:
+        df_cleaned['date'] = pd.to_datetime(df_cleaned['date'])
+        df_cleaned.sort_values('date', ascending=False, inplace=True)
 
-    df.dropna(subset=["revenue"], inplace=True)
-    df.sort_values("date", inplace=True)
-    df.drop_duplicates(subset=["date"], inplace=True)
+    if not df_cleaned.empty:
+        # Save only the columns that were actually found
+        df_cleaned.to_csv(cleaned_path, index=False)
+        print(f"  ✔ Cleaned and saved: {cleaned_path.name}")
 
-    df = df[[c for c in keep_cols if c in df.columns]]
-    df.to_csv(cleaned, index=False)
-    print(f"✅ Cleaned FMP for {sym}: {cleaned}")
+def clean_fmp_data():
+    """Main function to orchestrate the cleaning of all FMP files."""
+    print("🚀 Starting FMP data cleaning process...")
+    CLEANED_DIR.mkdir(parents=True, exist_ok=True)
+
+    # List all the file types we fetched
+    file_types = ["cash_flow_statement", "balance_sheet_statement", "income_statement", "key_metrics_ttm"]
+
+    for symbol in SYMBOLS:
+        print(f"\nProcessing symbol: {symbol}")
+        for file_type in file_types:
+            raw_file = RAW_DIR / f"{symbol}_{file_type}.csv"
+            cleaned_file = CLEANED_DIR / f"{symbol}_{file_type}_clean.csv"
+            clean_file(raw_file, cleaned_file)
+
+    print("\n All FMP data cleaning complete.")
 
 
 if __name__ == "__main__":
-    for s in symbols:
-        try:
-            clean_fmp_symbol(s)
-        except Exception as e:
-            print(f"❌ FMP failed for {s}: {e}")
+    clean_fmp_data()

@@ -6,7 +6,7 @@ This project is an easy-to-use web application that makes company valuation fast
 ---
 
 ## Live Demo
-Check out the live demo: **[Startup Valuation & Analysis Tool](https://startupvaluationtool-cktwmgeh4ow4oikct6wzf.streamlit.app/)**
+Check out the live demo: **[Startup Valuation & Analysis Tool](https://startupvaluationtool-cktwmge45hsw6oikct6wzf.streamlit.app/)**
 
 ## 🎯 Quick Start Guide
 After launching the app, try this example workflow:

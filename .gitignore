@@ -11,3 +11,14 @@ airflow/webserver_config.py
 
 # macOS
 .DS_Store
+
+# Python virtualenv
+venv/
+.venv/
+
+# Node / React
+frontend/node_modules/
+frontend/dist/
+
+# Editor
+.cursor/

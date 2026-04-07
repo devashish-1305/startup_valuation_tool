@@ -5,8 +5,8 @@ export function Home() {
     <div>
       <h1 className="page-title">Startup Valuation &amp; Analysis Tool</h1>
       <p className="page-lead">
-        Intrinsic value, ML-based market cap, peer clusters, and five qualitative startup
-        models—wired to your FastAPI backend.
+        Analyze public companies with DCF and ML, and value early-stage startups with six
+        practical methods in one workflow.
       </p>
 
       <div className="card-grid-2">

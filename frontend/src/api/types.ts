@@ -1,5 +1,3 @@
-/** Mirrors FastAPI `api.py` JSON shapes. */
-
 export type CompanyInfo = {
   ticker: string;
   latest_date?: string | null;

@@ -456,3 +456,37 @@ code {
   padding: 0.12em 0.35em;
   border-radius: 4px;
 }
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.run-all-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.card.pad-sm {
+  padding: 1rem;
+}
+
+.muted.overline {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.result-big.size-md {
+  font-size: 1.35rem;
+}
+
+.kv.tight {
+  margin: 0.5rem 0 0;
+}

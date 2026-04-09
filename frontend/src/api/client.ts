@@ -13,86 +13,114 @@ import type {
 
 const base = () => import.meta.env.VITE_API_BASE_URL ?? "";
 
-async function parseError(res: Response): Promise<string> {
+type FastApiErrorBody = { detail?: string | Array<{ msg?: string }> };
+
+async function readErrorMessage(res: Response): Promise<string> {
   try {
-    const j = (await res.json()) as { detail?: string | Array<{ msg?: string }> };
+    const j = (await res.json()) as FastApiErrorBody;
     if (typeof j.detail === "string") return j.detail;
     if (Array.isArray(j.detail)) return j.detail.map((d) => d.msg ?? "").join("; ");
   } catch {
-    /* ignore */
+    void 0;
   }
   return res.statusText || `HTTP ${res.status}`;
 }
 
-async function req<T>(
-  path: string,
-  init?: RequestInit,
-): Promise<T> {
+async function postJson(path: string, body: object): Promise<unknown> {
   const url = `${base()}${path}`;
-  const res = await fetch(url, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-  });
-  if (!res.ok) throw new Error(await parseError(res));
-  if (res.status === 204) return undefined as T;
-  return res.json() as Promise<T>;
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const msg = await readErrorMessage(res);
+      console.log("[api] POST failed", path, res.status, msg);
+      throw new Error(msg);
+    }
+    if (res.status === 204) return undefined;
+    return await res.json();
+  } catch (e) {
+    if (e instanceof Error) throw e;
+    throw new Error(String(e));
+  }
+}
+
+export async function fullAnalysis(body: FullAnalysisRequest): Promise<FullAnalysisResponse> {
+  const data = await postJson("/api/full-analysis", body);
+  return data as FullAnalysisResponse;
+}
+
+export async function dcf(body: DcfRequest) {
+  const data = await postJson("/api/dcf", body);
+  return data as {
+    ticker: string;
+    intrinsic_value_per_share: number;
+    growth_rate: number;
+    perpetual_growth_rate: number;
+    wacc: number;
+  };
+}
+
+export async function startupBerkus(body: BerkusRequest) {
+  const data = await postJson("/api/startup/berkus", body);
+  return data as { valuation: number };
+}
+
+export async function startupScorecard(body: ScorecardRequest) {
+  const data = await postJson("/api/startup/scorecard", body);
+  return data as { valuation: number };
+}
+
+export async function startupRiskFactor(body: RiskFactorRequest) {
+  const data = await postJson("/api/startup/risk-factor", body);
+  return data as { valuation: number };
+}
+
+export async function startupCostToDuplicate(body: CostToDuplicateRequest) {
+  const data = await postJson("/api/startup/cost-to-duplicate", body);
+  return data as { valuation: number };
+}
+
+export async function startupVcMethod(body: VcMethodRequest) {
+  const data = await postJson("/api/startup/vc-method", body);
+  return data as {
+    exit_value: number;
+    post_money_valuation: number;
+    pre_money_valuation: number;
+  };
+}
+
+export async function startupAll(body: StartupAllRequest): Promise<StartupAllResponse> {
+  const data = await postJson("/api/startup/all", body);
+  return data as StartupAllResponse;
+}
+
+export async function health(): Promise<{ status: string }> {
+  const url = `${base()}/api/health`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      const msg = await readErrorMessage(res);
+      console.log("[api] GET failed", "/api/health", res.status, msg);
+      throw new Error(msg);
+    }
+    return (await res.json()) as { status: string };
+  } catch (e) {
+    if (e instanceof Error) throw e;
+    throw new Error(String(e));
+  }
 }
 
 export const api = {
-  health: () => req<{ status: string }>("/api/health"),
-
-  fullAnalysis: (body: FullAnalysisRequest) =>
-    req<FullAnalysisResponse>("/api/full-analysis", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-
-  dcf: (body: DcfRequest) =>
-    req<{
-      ticker: string;
-      intrinsic_value_per_share: number;
-      growth_rate: number;
-      perpetual_growth_rate: number;
-      wacc: number;
-    }>("/api/dcf", { method: "POST", body: JSON.stringify(body) }),
-
-  startupBerkus: (body: BerkusRequest) =>
-    req<{ valuation: number }>("/api/startup/berkus", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-
-  startupScorecard: (body: ScorecardRequest) =>
-    req<{ valuation: number }>("/api/startup/scorecard", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-
-  startupRiskFactor: (body: RiskFactorRequest) =>
-    req<{ valuation: number }>("/api/startup/risk-factor", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-
-  startupCostToDuplicate: (body: CostToDuplicateRequest) =>
-    req<{ valuation: number }>("/api/startup/cost-to-duplicate", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-
-  startupVcMethod: (body: VcMethodRequest) =>
-    req<{
-      exit_value: number;
-      post_money_valuation: number;
-      pre_money_valuation: number;
-    }>("/api/startup/vc-method", { method: "POST", body: JSON.stringify(body) }),
-
-  startupAll: (body: StartupAllRequest) =>
-    req<StartupAllResponse>("/api/startup/all", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
+  fullAnalysis,
+  dcf,
+  startupBerkus,
+  startupScorecard,
+  startupRiskFactor,
+  startupCostToDuplicate,
+  startupVcMethod,
+  startupAll,
+  health,
 };

@@ -25,7 +25,6 @@ async function readErrorMessage(res: Response): Promise<string> {
   }
   return res.statusText || `HTTP ${res.status}`;
 }
-
 async function postJson(path: string, body: object): Promise<unknown> {
   const url = `${base()}${path}`;
   try {

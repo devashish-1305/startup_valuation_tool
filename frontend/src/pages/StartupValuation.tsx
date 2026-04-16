@@ -7,7 +7,7 @@ import { RunAllTab } from "../tabs/RunAllTab";
 import { ScorecardTab } from "../tabs/ScorecardTab";
 import { VCMethodTab } from "../tabs/VCMethodTab";
 
-type TabId = "berkus" | "scorecard" | "risk" | "cost" | "vc" | "all";
+type TabId = "berkus" | "scorecard" | "risk" | "cost" | "vc" | "all" | "soil";
 
 const tabs: [TabId, string][] = [
   ["berkus", "Berkus"],

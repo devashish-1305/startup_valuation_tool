@@ -48,7 +48,7 @@ def merge(symbol: str):
 
 
     merged_df['symbol'] = symbol
-    merged_df.fillna(method='ffill', inplace=True)
+    merged_df.ffill(inplace=True)
     merged_df.dropna(inplace=True)
 
     out_path = os.path.join(OUT_DIR, f"{symbol}_merged.csv")

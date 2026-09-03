@@ -19,17 +19,19 @@ import {
   defaultVc,
 } from "../startup/defaults";
 
+type SetValue<T> = (next: T) => void;
+
 type StartupModelsValue = {
   berkus: BerkusRequest;
-  setBerkus: (next: BerkusRequest) => void;
+  setBerkus: SetValue<BerkusRequest>;
   scorecard: ScorecardRequest;
-  setScorecard: (next: ScorecardRequest) => void;
+  setScorecard: SetValue<ScorecardRequest>;
   risk: RiskFactorRequest;
-  setRisk: (next: RiskFactorRequest) => void;
+  setRisk: SetValue<RiskFactorRequest>;
   cost: CostToDuplicateRequest;
-  setCost: (next: CostToDuplicateRequest) => void;
+  setCost: SetValue<CostToDuplicateRequest>;
   vc: VcMethodRequest;
-  setVc: (next: VcMethodRequest) => void;
+  setVc: SetValue<VcMethodRequest>;
   loading: boolean;
   error: string | null;
   runAsync: (fn: () => Promise<void>) => Promise<void>;
@@ -54,7 +56,6 @@ export function StartupModelsProvider({ children }: { children: ReactNode }) {
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Request failed";
       setError(msg);
-      console.log("[startup] request error", msg);
     } finally {
       setLoading(false);
     }
@@ -77,7 +78,9 @@ export function StartupModelsProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <StartupModelsContext.Provider value={value}>{children}</StartupModelsContext.Provider>
+    <StartupModelsContext.Provider value={value}>
+      {children}
+    </StartupModelsContext.Provider>
   );
 }
 

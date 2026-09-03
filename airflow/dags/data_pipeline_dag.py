@@ -5,9 +5,18 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 import os
 import subprocess
+from pathlib import Path
 
-project_path = "/Users/devashishdwivedi/Documents/startup_valuation_tool"
-python_executable = "/opt/anaconda3/envs/valuation_env/bin/python"
+# Resolve project root from this DAG file: airflow/dags/ -> project root
+project_path = str(Path(__file__).resolve().parents[2])
+
+# Prefer project venv, then anaconda env, then current interpreter
+_candidates = [
+    Path(project_path) / "venv" / "bin" / "python",
+    Path("/opt/anaconda3/envs/valuation_env/bin/python"),
+    Path(os.sys.executable),
+]
+python_executable = next((str(p) for p in _candidates if p.exists()), "python3")
 
 def check_scripts(**context):
     """Verify all scripts exist before running"""

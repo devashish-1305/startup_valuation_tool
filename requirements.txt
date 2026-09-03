@@ -4,11 +4,13 @@ imbalanced-learn
 joblib
 lxml
 matplotlib
+numpy
 openpyxl
 pandas
 prophet
 pymongo
 python-dotenv
+requests
 scikit-learn
 streamlit
 uvicorn[standard]

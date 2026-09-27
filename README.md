@@ -65,3 +65,9 @@ chmod +x scripts/run_pipeline.sh
 ## Stack
 
 Python · FastAPI · React · TypeScript · Vite · Apache Airflow · SQLite · MongoDB · Scikit-learn · XGBoost
+
+## Model evaluation
+
+`scripts/ml_models/evaluate_regression.py` tests the XGBoost market-cap model honestly.
+The original random split scores R² 0.95, but that is leakage between near-duplicate rows.
+On a time-based split the model scores R² 0.56, below a naive last-value baseline (0.87).
